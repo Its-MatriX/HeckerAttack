@@ -1,8 +1,11 @@
-    # pip install discontrol
-    # pip install pyqt5
+# pip install discontrol
+# pip install pyqt5
 
 try:
     from os import name
+    from os.path import expanduser
+
+    home = expanduser('~')
 
     if name != 'nt':
         input('WINDOWS ONLY')
@@ -16,7 +19,6 @@ try:
     from os import _exit
     from os.path import split, sep
 
-
     class HoverButton(QtWidgets.QPushButton):
         hover = QtCore.pyqtSignal(str)
 
@@ -28,7 +30,6 @@ try:
 
         def leaveEvent(self, event):
             self.hover.emit('leaveEvent')
-
 
     folder = split(__file__)[0]
 
@@ -67,10 +68,8 @@ try:
 
     Модификаторы созданы, чтобы избежать анти-спама.'''
 
-
     class Attackker:
         is_working = False
-
 
     def SmartSplit(text, sep):
         if sep not in text:
@@ -78,37 +77,30 @@ try:
         else:
             return text.split(sep)
 
-
     def Parse(message):
         for x in range(message.count('?digit')):
             message = message.replace('?digit', str(random.randint(0, 9)), 1)
 
         for x in range(message.count('?letter')):
-            message = message.replace('?letter',
-                                    random.choice('QWERTYUIOPASDFGHJKLZXCVBNM'),
-                                    1)
+            message = message.replace(
+                '?letter', random.choice('QWERTYUIOPASDFGHJKLZXCVBNM'), 1)
 
         return message
-
 
     def cont_rand():
         return ''.join(
             random.choice('QWERTYUIOPASDFGHJKLZXCVBNM') for x in range(2))
 
-
     class Data:
         LogsWindowIsOpened = False
 
-
     logs = ''
-
 
     def UpdateLogs(text):
         global logs
         logs = str(text) + '\n' + str(logs)
         if logs.count('\n') > 50:
             logs = logs.split('\n')[:50]
-
 
     class ApplicationLogsWindow(QtWidgets.QMainWindow):
         update_signal = QtCore.pyqtSignal(str)
@@ -151,11 +143,11 @@ try:
             self.ClearLogs.setGeometry(QtCore.QRect(10, 200, 360, 20))
             self.ClearLogs.setFocusPolicy(QtCore.Qt.NoFocus)
             self.ClearLogs.setStyleSheet("font: 87 8pt \"Segoe UI Black\";\n"
-                                        "border-style: solid;\n"
-                                        "border-color: white;\n"
-                                        "border-radius: 5;\n"
-                                        "background-color: rgb(88,101,242);\n"
-                                        "color: white;")
+                                         "border-style: solid;\n"
+                                         "border-color: white;\n"
+                                         "border-radius: 5;\n"
+                                         "background-color: rgb(88,101,242);\n"
+                                         "color: white;")
             self.ClearLogs.setObjectName("ClearLogs")
             MainWindow.setCentralWidget(self.centralwidget)
             MainWindow.setWindowTitle("HeckerAttack - Logs")
@@ -186,20 +178,21 @@ try:
 
         def ClButtonHover(self, event):
             if event == 'enterEvent':
-                self.ClearLogs.setStyleSheet("font: 87 8pt \"Segoe UI Black\";\n"
-                                            "border-style: solid;\n"
-                                            "border-color: white;\n"
-                                            "border-radius: 5;\n"
-                                            "background-color: rgb(72,84,200);\n"
-                                            "color: white;")
+                self.ClearLogs.setStyleSheet(
+                    "font: 87 8pt \"Segoe UI Black\";\n"
+                    "border-style: solid;\n"
+                    "border-color: white;\n"
+                    "border-radius: 5;\n"
+                    "background-color: rgb(72,84,200);\n"
+                    "color: white;")
             else:
-                self.ClearLogs.setStyleSheet("font: 87 8pt \"Segoe UI Black\";\n"
-                                            "border-style: solid;\n"
-                                            "border-color: white;\n"
-                                            "border-radius: 5;\n"
-                                            "background-color: rgb(88,101,242);\n"
-                                            "color: white;\n")
-
+                self.ClearLogs.setStyleSheet(
+                    "font: 87 8pt \"Segoe UI Black\";\n"
+                    "border-style: solid;\n"
+                    "border-color: white;\n"
+                    "border-radius: 5;\n"
+                    "background-color: rgb(88,101,242);\n"
+                    "color: white;\n")
 
     class LogsWindowClass(ApplicationLogsWindow):
 
@@ -213,20 +206,19 @@ try:
             logs = self.Logs.toPlainText()
             self.close()
 
-
     class Invokers:
 
         def InvokeWindowStep1():
             windll.user32.MessageBoxW(0, WhatIsToken,
-                                    'Что такое токен и как получить', 0)
+                                      'Что такое токен и как получить', 0)
 
         def InvokeWindowStep2():
             windll.user32.MessageBoxW(0, WhatIsChannelID,
-                                    'Что такое Discord ID и как получить', 0)
+                                      'Что такое Discord ID и как получить', 0)
 
         def InvokeWindowStep3():
-            windll.user32.MessageBoxW(0, WhatIsMessageInput, 'Ввод сообщения', 0)
-
+            windll.user32.MessageBoxW(0, WhatIsMessageInput, 'Ввод сообщения',
+                                      0)
 
     class ApplicationMainWindow(QtWidgets.QMainWindow):
 
@@ -246,7 +238,8 @@ try:
                         if not Attackker.is_working:
                             return
                         client.send_message(attack, Parse(spam_text))
-                        UpdateLogs(f'[INFO] [200 - OK] Sended flood in {attack}')
+                        UpdateLogs(
+                            f'[INFO] [200 - OK] Sended flood in {attack}')
                     except Exception as e:
                         try:
                             retry_after = e.args[0]['retry_after']
@@ -257,9 +250,7 @@ try:
                         except:
                             try:
                                 message = e.args[0]['message']
-                                UpdateLogs(
-                                    f'[Error] {message}'
-                                )
+                                UpdateLogs(f'[Error] {message}')
                                 time.sleep(1)
                             except:
                                 UpdateLogs(f'[Error] Unknown -> {e}')
@@ -273,7 +264,8 @@ try:
         def start_attack(self):
             if self.TokensInput.toPlainText() == '':
                 windll.user32.MessageBoxW(
-                    0, f'Поле ввода токенов не может быть пустым.', 'ОШИБКА!', 0)
+                    0, f'Поле ввода токенов не может быть пустым.', 'ОШИБКА!',
+                    0)
                 return
 
             if self.is_attack:
@@ -325,8 +317,8 @@ try:
                     continue
                 except:
                     windll.user32.MessageBoxW(
-                        0, f'Канал "{channelid}" не является числом.', 'ОШИБКА!',
-                        0)
+                        0, f'Канал "{channelid}" не является числом.',
+                        'ОШИБКА!', 0)
                     self.AttackButton.setStyleSheet(
                         "font: 87 8pt \"Segoe UI Black\";\n"
                         "border-style: solid;\n"
@@ -349,20 +341,32 @@ try:
             for token in clients:
                 threading.Thread(target=lambda: self.hecker_attack(
                     str(token), channels, self.SpamEdit.toPlainText(), index)
-                                ).start()
+                                 ).start()
                 index += 1
                 time.sleep(.2)
 
+            global home
+
+            tokens = open(home + '\\' + 'hecker_attack_ok_tokens.txt', 'w')
+
+            tokens.write(self.TokensInput.toPlainText())
+
+            UpdateLogs('[INFO] Токены записаны в hecker_attack_ok_tokens.txt')
+
+            tokens.close()
+
             self.AttackButton.setText('ВЫПОЛНЯЕТСЯ АТАКА')
 
-            self.AttackButton.setStyleSheet("font: 87 8pt \"Segoe UI Black\";\n"
-                                            "border-style: solid;\n"
-                                            "border-color: white;\n"
-                                            "border-radius: 5;\n"
-                                            "background-color: rgb(255, 0, 0);\n"
-                                            "color: rgb(255, 255, 255);")
+            self.AttackButton.setStyleSheet(
+                "font: 87 8pt \"Segoe UI Black\";\n"
+                "border-style: solid;\n"
+                "border-color: white;\n"
+                "border-radius: 5;\n"
+                "background-color: rgb(255, 0, 0);\n"
+                "color: rgb(255, 255, 255);")
 
         def InitWindow(self, MainWindow):
+            global home
             MainWindow.setObjectName("MainWindow")
             MainWindow.resize(310, 440)
             MainWindow.setMinimumSize(QtCore.QSize(310, 440))
@@ -382,18 +386,35 @@ try:
             self.TokensInput = QtWidgets.QPlainTextEdit(self.centralwidget)
             self.TokensInput.setGeometry(QtCore.QRect(10, 70, 291, 66))
             self.TokensInput.setStyleSheet("font: 87 8pt \"Segoe UI Black\";\n"
-                                        "background-color: rgb(64,68,75);\n"
-                                        "color: rgb(255, 255, 255);\n"
-                                        "border-radius: 5;\n"
-                                        "padding-left: 3;\n"
-                                        "padding-top: 3;\n"
-                                        "padding-right: 3;\n"
-                                        "padding-bottom: 3;\n")
+                                           "background-color: rgb(64,68,75);\n"
+                                           "color: rgb(255, 255, 255);\n"
+                                           "border-radius: 5;\n"
+                                           "padding-left: 3;\n"
+                                           "padding-top: 3;\n"
+                                           "padding-right: 3;\n"
+                                           "padding-bottom: 3;\n")
             self.TokensInput.setObjectName("TokensInput")
+            try:
+                tokens = open(home + '\\' + 'hecker_attack_ok_tokens.txt', 'r')
+                available_tokens = tokens.read()
+                tokens.close()
+                UpdateLogs(
+                    f'[INFO] Чтение токенов из hecker_attack_ok_tokens.txt'
+                )
+            except:
+                available_tokens = ''
+                file = open(home + '\\' + 'hecker_attack_ok_tokens.txt', 'w')
+                file.close()
+                UpdateLogs(
+                    '[INFO] В папке пользователя создан hecker_attack_ok_tokens.txt, потому что предыдущий был удалён/не создан.'
+                )
+
+            self.TokensInput.setPlainText(available_tokens)
+
             self.LabelStep1 = QtWidgets.QLabel(self.centralwidget)
             self.LabelStep1.setGeometry(QtCore.QRect(10, 40, 291, 21))
             self.LabelStep1.setStyleSheet("font: 10pt \"Segoe UI Black\";\n"
-                                        "color: rgb(184,187,194);")
+                                          "color: rgb(184,187,194);")
             self.LabelStep1.setAlignment(QtCore.Qt.AlignCenter)
             self.LabelStep1.setObjectName("LabelStep1")
             self.IdsInput = QtWidgets.QPlainTextEdit(self.centralwidget)
@@ -410,7 +431,7 @@ try:
             self.LabelStep2 = QtWidgets.QLabel(self.centralwidget)
             self.LabelStep2.setGeometry(QtCore.QRect(10, 150, 291, 21))
             self.LabelStep2.setStyleSheet("font: 10pt \"Segoe UI Black\";\n"
-                                        "color: rgb(184,187,194);")
+                                          "color: rgb(184,187,194);")
             self.LabelStep2.setAlignment(QtCore.Qt.AlignCenter)
             self.LabelStep2.setObjectName("LabelStep2")
             self.SpamEdit = QtWidgets.QPlainTextEdit(self.centralwidget)
@@ -427,17 +448,18 @@ try:
             self.LabelStep3 = QtWidgets.QLabel(self.centralwidget)
             self.LabelStep3.setGeometry(QtCore.QRect(10, 260, 291, 21))
             self.LabelStep3.setStyleSheet("font: 10pt \"Segoe UI Black\";\n"
-                                        "color: rgb(184,187,194);")
+                                          "color: rgb(184,187,194);")
             self.LabelStep3.setAlignment(QtCore.Qt.AlignCenter)
             self.LabelStep3.setObjectName("LabelStep3")
             self.AttackButton = HoverButton(self.centralwidget)
             self.AttackButton.setGeometry(QtCore.QRect(20, 380, 186, 36))
-            self.AttackButton.setStyleSheet("font: 87 8pt \"Segoe UI Black\";\n"
-                                            "border-style: solid;\n"
-                                            "border-color: white;\n"
-                                            "border-radius: 5;\n"
-                                            "background-color: rgb(88,101,242);\n"
-                                            "color: white;\n")
+            self.AttackButton.setStyleSheet(
+                "font: 87 8pt \"Segoe UI Black\";\n"
+                "border-style: solid;\n"
+                "border-color: white;\n"
+                "border-radius: 5;\n"
+                "background-color: rgb(88,101,242);\n"
+                "color: white;\n")
             self.AttackButton.setObjectName("AttackButton")
             self.Background = QtWidgets.QLabel(self.centralwidget)
             self.Background.setGeometry(QtCore.QRect(0, 0, 316, 441))
@@ -446,24 +468,27 @@ try:
             self.Background.setObjectName("Background")
             self.AboutStep1 = QtWidgets.QPushButton(self.centralwidget)
             self.AboutStep1.setGeometry(QtCore.QRect(275, 110, 21, 21))
-            self.AboutStep1.setStyleSheet("font: 87 8pt \"Segoe UI Black\";\n"
-                                        "border-radius: 10;\n"
-                                        "background-color: rgb(185,187,190);\n"
-                                        "color: rbg(64,68,75);")
+            self.AboutStep1.setStyleSheet(
+                "font: 87 8pt \"Segoe UI Black\";\n"
+                "border-radius: 10;\n"
+                "background-color: rgb(185,187,190);\n"
+                "color: rbg(64,68,75);")
             self.AboutStep1.setObjectName("AboutStep1")
             self.AboutStep2 = QtWidgets.QPushButton(self.centralwidget)
             self.AboutStep2.setGeometry(QtCore.QRect(275, 220, 21, 21))
-            self.AboutStep2.setStyleSheet("font: 87 8pt \"Segoe UI Black\";\n"
-                                        "border-radius: 10;\n"
-                                        "background-color: rgb(185,187,190);\n"
-                                        "color: rbg(64,68,75);")
+            self.AboutStep2.setStyleSheet(
+                "font: 87 8pt \"Segoe UI Black\";\n"
+                "border-radius: 10;\n"
+                "background-color: rgb(185,187,190);\n"
+                "color: rbg(64,68,75);")
             self.AboutStep2.setObjectName("AboutStep2")
             self.AboutStep3 = QtWidgets.QPushButton(self.centralwidget)
             self.AboutStep3.setGeometry(QtCore.QRect(275, 330, 21, 21))
-            self.AboutStep3.setStyleSheet("font: 87 8pt \"Segoe UI Black\";\n"
-                                        "border-radius: 10;\n"
-                                        "background-color: rgb(185,187,190);\n"
-                                        "color: rbg(64,68,75);")
+            self.AboutStep3.setStyleSheet(
+                "font: 87 8pt \"Segoe UI Black\";\n"
+                "border-radius: 10;\n"
+                "background-color: rgb(185,187,190);\n"
+                "color: rbg(64,68,75);")
             self.AboutStep3.setObjectName("AboutStep3")
             self.ShowLogs = HoverButton(self.centralwidget)
             self.ShowLogs.setGeometry(QtCore.QRect(215, 380, 76, 36))
@@ -559,20 +584,21 @@ try:
 
         def LogsButtonHover(self, event):
             if event == 'enterEvent':
-                self.ShowLogs.setStyleSheet("font: 87 8pt \"Segoe UI Black\";\n"
-                                            "border-style: solid;\n"
-                                            "border-color: white;\n"
-                                            "border-radius: 5;\n"
-                                            "background-color: rgb(55,134,80);\n"
-                                            "color: white;\n")
+                self.ShowLogs.setStyleSheet(
+                    "font: 87 8pt \"Segoe UI Black\";\n"
+                    "border-style: solid;\n"
+                    "border-color: white;\n"
+                    "border-radius: 5;\n"
+                    "background-color: rgb(55,134,80);\n"
+                    "color: white;\n")
             else:
-                self.ShowLogs.setStyleSheet("font: 87 8pt \"Segoe UI Black\";\n"
-                                            "border-style: solid;\n"
-                                            "border-color: white;\n"
-                                            "border-radius: 5;\n"
-                                            "background-color: rgb(59,165,93);\n"
-                                            "color: white;")
-
+                self.ShowLogs.setStyleSheet(
+                    "font: 87 8pt \"Segoe UI Black\";\n"
+                    "border-style: solid;\n"
+                    "border-color: white;\n"
+                    "border-radius: 5;\n"
+                    "background-color: rgb(59,165,93);\n"
+                    "color: white;")
 
     class ApplicationWindow(ApplicationMainWindow):
 
@@ -582,7 +608,6 @@ try:
 
         def closeEvent(self, *args):
             _exit(0)
-
 
     if __name__ == "__main__":
         Application = QtWidgets.QApplication(argv)
@@ -606,9 +631,11 @@ except Exception as e:
 Тип ошибки: {type(e)}
 Комментарий ошибки: {e}
 
-Если вы запустили программу EXE, не в виде скрипта, свяжитесь с создателем программы - Its-MatriX#6770
+Если вы запустили программу EXE, не в виде скрипта, и не модифицировали, свяжитесь с создателем программы - Its-MatriX#6770
 
 Если вы скачали исходный код, и что-то модифицировали, либо скачайте исходный код заного, либо исправьте ошибку.
+
+Если вы модифицировали EXE файл (сжимали, редактировали resource hacker'ом) и проводили другие манипуляции, скачайте программу заново.
 
 Обратите внимание, что версии windows 7 и ниже - не поддерживаются. Если это не так, напишите об этом создателю программы.'''
 
