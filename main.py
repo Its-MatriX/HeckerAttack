@@ -4,8 +4,9 @@
 try:
     from os import name
     from os.path import expanduser
+    from re import findall
 
-    home = expanduser('~')
+    CurrentUserFolder = expanduser('~')
 
     if name != 'nt':
         input('WINDOWS ONLY')
@@ -34,39 +35,39 @@ try:
     folder = split(__file__)[0]
 
     WhatIsToken = '''ТОКЕН УЧЁТНОЙ ЗАПИСИ
-    Это код, состоящий из набора символов, дающий полный доступ к учётной записи Discord.
+Это код, состоящий из набора символов, дающий полный доступ к учётной записи Discord.
 
-    Получить токен можно следующий образом:
-    1. Откройте браузерную версию приложения
-    2. Войдите в свой аккаунт (или тот который будет рейдить)
-    3. Откройте инструменты разработчика (Ctrl+Shift+I)
-    4. Перейдите в раздел Сеть
-    5. Отправьте какое нибудь сообщение, или выполните другое действие
-    6. Нажмите на запрос
-    7. Найдите в заголовках Authorization
-    8. Скопируйте значение
+Получить токен можно следующий образом:
+1. Откройте браузерную версию приложения
+2. Войдите в свой аккаунт (или тот который будет рейдить)
+3. Откройте инструменты разработчика (Ctrl+Shift+I)
+4. Перейдите в раздел Сеть
+5. Отправьте какое нибудь сообщение, или выполните другое действие
+6. Нажмите на запрос
+7. Найдите в заголовках Authorization
+8. Скопируйте значение
 
-    Токен у вас!'''
+Токен у вас!'''
 
     WhatIsChannelID = '''ID канала Discord
 
-    ID канала - это уникальная цифра
-    У каждого объекта в Disord (будь то роль или сервер) есть свой ID
+ID канала - это уникальная цифра
+У каждого объекта в Disord (будь то роль или сервер) есть свой ID
 
-    Как получить ID объекта?
-    1. Откройте настройки Discord
-    2. Перейдите во вкладку Расширенные
-    3. Включите режим разработчика
+Как получить ID объекта?
+1. Откройте настройки Discord
+2. Перейдите во вкладку Расширенные
+3. Включите режим разработчика
 
-    Теперь вы можете копировать ID любого объекта, кликнув по нему ПКМ и выбрав пункт Копировать ID'''
+Теперь вы можете копировать ID любого объекта, кликнув по нему ПКМ и выбрав пункт Копировать ID'''
 
-    WhatIsMessageInput = '''Ну тут всёи так понятно. Введите сообщение для флуда.
+    WhatIsMessageInput = '''ДОСТУПНЫЕ МОДИФИКАТОРЫ
+?digit - случайное однозначное число
+?letter - случайная анлийская буква
+?pref - случайный знак препинания
+?char <начало:Число>,<конец:Число> - рандомный символ со случайным индексом между началом и концом
 
-    ДОСТУПНЫЕ МОДИФИКАТОРЫ
-    ?digit - случайное однозначное число
-    ?letter - случайная анлийская буква
-
-    Модификаторы созданы, чтобы избежать анти-спама.'''
+Модификаторы созданы, чтобы избежать анти-спама.'''
 
     class Attackker:
         is_working = False
@@ -78,12 +79,35 @@ try:
             return text.split(sep)
 
     def Parse(message):
+
+        if not ('?digit' in message or '?letter' in message
+                or '?prep' in message or '?char' in message):
+            return message
+
         for x in range(message.count('?digit')):
             message = message.replace('?digit', str(random.randint(0, 9)), 1)
 
         for x in range(message.count('?letter')):
             message = message.replace(
                 '?letter', random.choice('QWERTYUIOPASDFGHJKLZXCVBNM'), 1)
+
+        for x in range(message.count('?prep')):
+            message = message.replace('?prep', random.choice('.!?'), 1)
+
+        if '?char' in message:
+            searches_randchar = findall('\?char \d+,\s*\d+', message)
+
+            for s in searches_randchar:
+                vals = s.replace('?char ', '').split(',')
+                start = int(vals[0])
+                end = int(vals[1])
+                if start >= end:
+                    raise TypeError(
+                        'Минимальное число не может быть больше максимального')
+                if start < 0 or end < 0:
+                    raise TypeError(
+                        '?char <start> или ?char <end> не может быть меньше 0')
+                message = message.replace(s, chr(random.randint(start, end)))
 
         return message
 
@@ -105,11 +129,11 @@ try:
     class ApplicationLogsWindow(QtWidgets.QMainWindow):
         update_signal = QtCore.pyqtSignal(str)
 
-        def Update(self):
+        def LogsUpdateSignalHandler(self):
             global logs
             self.Logs.setPlainText(logs)
 
-        def InitWindow(self, MainWindow):
+        def InitializeWindow(self, MainWindow):
             Data.LogsWindowIsOpened = True
             MainWindow.setObjectName("MainWindow")
             MainWindow.resize(380, 230)
@@ -159,7 +183,7 @@ try:
 
             upt = threading.Thread(target=self.Ticker)
 
-            self.update_signal.connect(self.Update)
+            self.update_signal.connect(self.LogsUpdateSignalHandler)
 
             upt.start()
 
@@ -198,7 +222,7 @@ try:
 
         def __init__(self):
             super().__init__()
-            self.InitWindow(self)
+            self.InitializeWindow(self)
 
         def closeEvent(self, *args):
             Data.LogsWindowIsOpened = False
@@ -268,6 +292,12 @@ try:
                     0)
                 return
 
+            try:
+                Parse(self.SpamEdit.toPlainText())
+            except Exception as e:
+                windll.user32.MessageBoxW(0, str(e), 'Ошибка парсера', 0x10)
+                return
+
             if self.is_attack:
                 Attackker.is_working = False
                 self.is_attack = False
@@ -291,10 +321,10 @@ try:
             for token in clients:
                 try:
                     index += 1
-                    UpdateLogs(f'[INFO] Scanning token {token}')
+                    UpdateLogs(f'[INFO] Сканирование токена {token}')
                     discontrol.Client(str(token))
                 except Exception as e:
-                    UpdateLogs(f'[INFO] Token invalid - {token}')
+                    UpdateLogs(f'[INFO] Неверный токен - {token}')
                     print(f'Error {e}')
                     windll.user32.MessageBoxW(
                         0, f'Токен "{token}" №{index} неверен.', 'ОШИБКА!', 0)
@@ -345,9 +375,9 @@ try:
                 index += 1
                 time.sleep(.2)
 
-            global home
+            global CurrentUserFolder
 
-            tokens = open(home + '\\' + 'hecker_attack_ok_tokens.txt', 'w')
+            tokens = open(CurrentUserFolder + '\\' + 'hecker_attack_ok_tokens.txt', 'w')
 
             tokens.write(self.TokensInput.toPlainText())
 
@@ -362,11 +392,11 @@ try:
                 "border-style: solid;\n"
                 "border-color: white;\n"
                 "border-radius: 5;\n"
-                "background-color: rgb(255, 0, 0);\n"
+                "background-color: rgb(237,66,69);\n"
                 "color: rgb(255, 255, 255);")
 
-        def InitWindow(self, MainWindow):
-            global home
+        def InitializeWindow(self, MainWindow):
+            global CurrentUserFolder
             MainWindow.setObjectName("MainWindow")
             MainWindow.resize(310, 440)
             MainWindow.setMinimumSize(QtCore.QSize(310, 440))
@@ -395,21 +425,21 @@ try:
                                            "padding-bottom: 3;\n")
             self.TokensInput.setObjectName("TokensInput")
             try:
-                tokens = open(home + '\\' + 'hecker_attack_ok_tokens.txt', 'r')
+                tokens = open(CurrentUserFolder + '\\' + 'hecker_attack_ok_tokens.txt', 'r')
                 available_tokens = tokens.read()
                 tokens.close()
                 UpdateLogs(
-                    f'[INFO] Чтение токенов из hecker_attack_ok_tokens.txt'
-                )
+                    f'[INFO] Чтение токенов из hecker_attack_ok_tokens.txt')
             except:
                 available_tokens = ''
-                file = open(home + '\\' + 'hecker_attack_ok_tokens.txt', 'w')
+                file = open(CurrentUserFolder + '\\' + 'hecker_attack_ok_tokens.txt', 'w')
                 file.close()
                 UpdateLogs(
                     '[INFO] В папке пользователя создан hecker_attack_ok_tokens.txt, потому что предыдущий был удалён/не создан.'
                 )
 
-            self.TokensInput.setPlainText(available_tokens)
+            if available_tokens != '':
+                self.TokensInput.setPlainText(available_tokens)
 
             self.LabelStep1 = QtWidgets.QLabel(self.centralwidget)
             self.LabelStep1.setGeometry(QtCore.QRect(10, 40, 291, 21))
@@ -517,13 +547,13 @@ try:
             MainWindow.setWindowTitle("HeckerAttack")
             self.ApplicationMainLabel.setText("HeckerAttack by Its-MatriX")
             self.TokensInput.setPlaceholderText(
-                "Введите токен(ы) аккаунтв(ов) по одному на строку")
-            self.LabelStep1.setText("1. Ввод аккаунтов")
+                "Введите токен(ы) аккаунта(ов) по одному на строку")
+            self.LabelStep1.setText("1. Аккаунты")
             self.IdsInput.setPlaceholderText(
                 "Введите ID каналов по одному на строку")
-            self.LabelStep2.setText("2. Каналы (их ID)")
+            self.LabelStep2.setText("2. Каналы")
             self.SpamEdit.setPlaceholderText("Введите текст")
-            self.LabelStep3.setText("3. Текст флудера")
+            self.LabelStep3.setText("3. Текст")
             self.AttackButton.setText("АТАКОВАТЬ")
             self.AboutStep1.setText("?")
             self.AboutStep2.setText("?")
@@ -604,7 +634,7 @@ try:
 
         def __init__(self):
             super().__init__()
-            self.InitWindow(self)
+            self.InitializeWindow(self)
 
         def closeEvent(self, *args):
             _exit(0)
