@@ -121,10 +121,12 @@ ID канала - это уникальная цифра
     logs = ''
 
     def UpdateLogs(text):
+
         global logs
-        logs = str(text) + '\n' + str(logs)
-        if logs.count('\n') > 50:
-            logs = logs.split('\n')[:50]
+        logs = text + '\n' + logs
+
+        if len(logs.split('\n')) > 50:
+            logs = '\n'.join(logs.split('\n')[:35])
 
     class ApplicationLogsWindow(QtWidgets.QMainWindow):
         update_signal = QtCore.pyqtSignal(str)
@@ -261,7 +263,7 @@ ID канала - это уникальная цифра
                     try:
                         if not Attackker.is_working:
                             return
-                        client.send_message(attack, Parse(spam_text))
+                        client.send_message(attack, Parse(spam_text), False)
                         UpdateLogs(
                             f'[INFO] [200 - OK] Sended flood in {attack} as USER'
                         )
@@ -603,7 +605,7 @@ ID канала - это уникальная цифра
             MainWindow.setWindowTitle("HeckerAttack")
             self.ApplicationMainLabel.setText("HeckerAttack by Its-MatriX")
             self.TokensInput.setPlaceholderText(
-                "Введите токен(ы) аккаунта(ов) или URL вебхука по одному на строку")
+                "Введите токен(ы) аккаунта(ов) или URL вебхука(ов) по одному на строку")
             self.LabelStep1.setText("1. Аккаунты")
             self.IdsInput.setPlaceholderText(
                 "Введите ID каналов по одному на строку")
