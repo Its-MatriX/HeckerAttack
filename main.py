@@ -71,6 +71,7 @@ ID канала - это уникальная цифра
 
     class Attackker:
         is_working = False
+        is_checking = False
 
     def SmartSplit(text, sep):
         if sep not in text:
@@ -248,6 +249,8 @@ ID канала - это уникальная цифра
 
     class ApplicationMainWindow(QtWidgets.QMainWindow):
 
+        AttackButtonChangeStyleSignal = QtCore.pyqtSignal(str)
+
         is_attack = False
 
         def hecker_attack(self, token, attack_channels, spam_text, thr_id):
@@ -297,13 +300,9 @@ ID канала - это уникальная цифра
             while Attackker.is_working:
                 try:
                     webhook.send(Parse(spam_text))
-                    UpdateLogs(
-                        f'[INFO] [200 - OK] Sended flood as WEBHOOK'
-                    )
+                    UpdateLogs(f'[INFO] [200 - OK] Sended flood as WEBHOOK')
                 except:
-                    UpdateLogs(
-                        f'[ERROR] Failed to send flood as webhook'
-                    )
+                    UpdateLogs(f'[ERROR] Failed to send flood as webhook')
                     time.sleep(1)
 
         def attack(self, clients, channels, spam_text):
@@ -312,6 +311,10 @@ ID канала - это уникальная цифра
                     c, channels, spam_text)).start()
 
         def start_attack(self):
+            if not Attackker.is_checking:
+                threading.Thread(target=self.start_attack_thread).start()
+
+        def start_attack_thread(self):
             if self.TokensInput.toPlainText() == '':
                 windll.user32.MessageBoxW(
                     0, f'Поле ввода токенов не может быть пустым.', 'ОШИБКА!',
@@ -327,14 +330,7 @@ ID канала - это уникальная цифра
             if self.is_attack:
                 Attackker.is_working = False
                 self.is_attack = False
-                self.AttackButton.setStyleSheet(
-                    "font: 87 8pt \"Segoe UI Black\";\n"
-                    "border-style: solid;\n"
-                    "border-color: white;\n"
-                    "border-radius: 5;\n"
-                    "background-color: rgb(88,101,242);\n"
-                    "color: white;")
-                self.AttackButton.setText('АТАКОВАТЬ')
+                self.AttackButtonChangeStyleSignal.emit('Default')
                 UpdateLogs('[INFO] Stopping attack')
                 return
 
@@ -342,12 +338,14 @@ ID канала - это уникальная цифра
 
             clients = SmartSplit(self.TokensInput.toPlainText(), '\n')
 
-            index = 1
+            index = 0
 
             for token in clients:
                 if 'http://' not in token and 'https://' not in token:
                     try:
                         index += 1
+                        self.AttackButtonChangeStyleSignal.emit(
+                            f'CheckingClient {index},{len(clients)}')
                         UpdateLogs(f'[INFO] Сканирование токена {token}')
                         discontrol.Client(str(token))
                     except Exception as e:
@@ -356,17 +354,13 @@ ID канала - это уникальная цифра
                         windll.user32.MessageBoxW(
                             0, f'Токен "{token}" №{index} неверен.', 'ОШИБКА!',
                             0)
-                        self.AttackButton.setStyleSheet(
-                            "font: 87 8pt \"Segoe UI Black\";\n"
-                            "border-style: solid;\n"
-                            "border-color: white;\n"
-                            "border-radius: 5;\n"
-                            "background-color: rgb(88,101,242);\n"
-                            "color: white;")
-                        self.AttackButton.setText('АТАКОВАТЬ')
+                        self.AttackButtonChangeStyleSignal.emit('Default')
                         return
                 else:
                     try:
+                        index += 1
+                        self.AttackButtonChangeStyleSignal.emit(
+                            f'CheckingClient {index},{len(clients)}')
                         UpdateLogs(f'[INFO] Сканирование вебхука {token}')
                         Webhook.from_url(token,
                                          adapter=RequestsWebhookAdapter())
@@ -376,14 +370,7 @@ ID канала - это уникальная цифра
                         windll.user32.MessageBoxW(
                             0, f'Вебхук "{token}" №{index} неверен.',
                             'ОШИБКА!', 0)
-                        self.AttackButton.setStyleSheet(
-                            "font: 87 8pt \"Segoe UI Black\";\n"
-                            "border-style: solid;\n"
-                            "border-color: white;\n"
-                            "border-radius: 5;\n"
-                            "background-color: rgb(88,101,242);\n"
-                            "color: white;")
-                        self.AttackButton.setText('АТАКОВАТЬ')
+                        self.AttackButtonChangeStyleSignal.emit('Default')
                         return
 
             channels = []
@@ -397,14 +384,7 @@ ID канала - это уникальная цифра
                     windll.user32.MessageBoxW(
                         0, f'Канал "{channelid}" не является числом.',
                         'ОШИБКА!', 0)
-                    self.AttackButton.setStyleSheet(
-                        "font: 87 8pt \"Segoe UI Black\";\n"
-                        "border-style: solid;\n"
-                        "border-color: white;\n"
-                        "border-radius: 5;\n"
-                        "background-color: rgb(88,101,242);\n"
-                        "color: white;")
-                    self.AttackButton.setText('АТАКОВАТЬ')
+                    self.AttackButtonChangeStyleSignal.emit('Default')
 
             self.is_attack = True
 
@@ -439,15 +419,7 @@ ID канала - это уникальная цифра
 
             tokens.close()
 
-            self.AttackButton.setText('ВЫПОЛНЯЕТСЯ АТАКА')
-
-            self.AttackButton.setStyleSheet(
-                "font: 87 8pt \"Segoe UI Black\";\n"
-                "border-style: solid;\n"
-                "border-color: white;\n"
-                "border-radius: 5;\n"
-                "background-color: rgb(237,66,69);\n"
-                "color: rgb(255, 255, 255);")
+            self.AttackButtonChangeStyleSignal.emit('Attacking')
 
         def InitializeWindow(self, MainWindow):
             global CurrentUserFolder
@@ -605,7 +577,8 @@ ID канала - это уникальная цифра
             MainWindow.setWindowTitle("HeckerAttack")
             self.ApplicationMainLabel.setText("HeckerAttack by Its-MatriX")
             self.TokensInput.setPlaceholderText(
-                "Введите токен(ы) аккаунта(ов) или URL вебхука(ов) по одному на строку")
+                "Введите токен(ы) аккаунта(ов) или URL вебхука(ов) по одному на строку"
+            )
             self.LabelStep1.setText("1. Аккаунты")
             self.IdsInput.setPlaceholderText(
                 "Введите ID каналов по одному на строку")
@@ -627,6 +600,56 @@ ID канала - это уникальная цифра
             self.ShowLogs.clicked.connect(self.OpenLogsWindow)
             self.AttackButton.hover.connect(self.AttackButtonHover)
             self.ShowLogs.hover.connect(self.LogsButtonHover)
+            self.AttackButtonChangeStyleSignal.connect(
+                self.ChangeAttackButtonStyle)
+
+        def ChangeAttackButtonStyle(self, signal):
+            print(f'Event -> ChangeAttackButtonStyle: {signal}')
+            if signal == 'Attacking':
+                Attackker.is_checking = False
+                self.AttackButton.setStyleSheet(
+                    "font: 87 8pt \"Segoe UI Black\";\n"
+                    "border-style: solid;\n"
+                    "border-color: white;\n"
+                    "border-radius: 5;\n"
+                    "background-color: rgb(237,66,69);\n"
+                    "color: rgb(255, 255, 255);")
+                self.AttackButton.setText('АТАКА')
+            elif signal == 'Default':
+                Attackker.is_checking = False
+                self.AttackButton.setStyleSheet(
+                    "font: 87 8pt \"Segoe UI Black\";\n"
+                    "border-style: solid;\n"
+                    "border-color: white;\n"
+                    "border-radius: 5;\n"
+                    "background-color: rgb(88,101,242);\n"
+                    "color: white;")
+                self.AttackButton.setText('АТАКОВАТЬ')
+            elif signal == 'Starting':
+                Attackker.is_checking = False
+                self.AttackButton.setStyleSheet(
+                    "font: 87 8pt \"Segoe UI Black\";\n"
+                    "border-style: solid;\n"
+                    "border-color: white;\n"
+                    "border-radius: 5;\n"
+                    "background-color: rgb(88,101,242);\n"
+                    "color: white;")
+                self.AttackButton.setText('ЗАПУСК')
+            else:
+                Attackker.is_checking = True
+                if signal.startswith('CheckingClient'):
+                    self.AttackButton.setStyleSheet(
+                        "font: 87 8pt \"Segoe UI Black\";\n"
+                        "border-style: solid;\n"
+                        "border-color: white;\n"
+                        "border-radius: 5;\n"
+                        "background-color: rgb(237,66,212);\n"
+                        "color: white;")
+                    signal = signal.replace('CheckingClient ', '')
+                    signal = signal.split(',')
+                    now = int(signal[0])
+                    total = int(signal[1])
+                    self.AttackButton.setText(f'ПРОВЕРКА {now}/{total}')
 
         def OpenLogsWindow(self):
             if not Data.LogsWindowIsOpened:
