@@ -27,7 +27,7 @@ try:
     locale = windows_locale[kernel.GetUserDefaultUILanguage()]
 
     class lang:
-        lang = 2
+        lang =  1 if locale == 'ru_RU' else 2
 
     class HoverButton(QtWidgets.QPushButton):
         hover = QtCore.pyqtSignal(str)
