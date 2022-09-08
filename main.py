@@ -170,6 +170,61 @@ Now you can copy ID of any discord object (right click - Copy ID)'''
             MainWindow.resize(380, 230)
             MainWindow.setMinimumSize(QtCore.QSize(380, 230))
             MainWindow.setMaximumSize(QtCore.QSize(380, 230))
+            MainWindow.setStyleSheet('''QScrollBar:vertical {
+    border: none;
+    background: rgb(64, 68, 75);
+    width: 5px;
+    margin: 12px 0 12px 0;
+}
+QScrollBar::handle:vertical {    
+    background-color: rgb(185, 187, 190);
+    min-height: 15px;
+    border-radius: 2px;
+}
+QScrollBar::handle:vertical:hover {    
+    background-color: rgb(135, 136, 139);
+    min-height: 15px;
+    border-radius: 2px;
+}
+QScrollBar::handle:vertical:pressed {    
+    background-color: rgb(53, 134, 117);
+    min-height: 15px;
+    border-radius: 2px;
+}
+QScrollBar::sub-line:vertical {
+    border: none;
+    background-color: rgb(185, 187, 190);
+    height: 10px;
+    border-radius: 2px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+QScrollBar::sub-line:vertical:hover {    
+    background-color: rgb(135, 136, 139);
+}
+QScrollBar::sub-line:vertical:pressed {    
+    background-color: rgb(53, 134, 117);
+}
+QScrollBar::add-line:vertical {
+    border: none;
+    background-color: rgb(185, 187, 190);
+    height: 10px;
+    border-radius: 2px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+QScrollBar::add-line:vertical:hover {    
+    background-color: rgb(135, 136, 139);
+}
+QScrollBar::add-line:vertical:pressed {    
+    background-color: rgb(53, 134, 117);
+}
+QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+    background: none;
+}
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;
+}''')
             self.move(420, 100)
             self.setWindowIcon(QtGui.QIcon(folder + sep + 'log.png'))
             self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
@@ -290,7 +345,7 @@ Now you can copy ID of any discord object (right click - Copy ID)'''
 
             print(f'Starting hecker attack on token {token}')
 
-            UpdateLogs(f'[INFO] Запуск потока {thr_id} - АККАУНТ' if lang ==
+            UpdateLogs(f'[INFO] Запуск потока {thr_id} - АККАУНТ' if lang.lang ==
                        1 else f'[INFO] Starting thread {thr_id} - USER')
 
             client = discontrol.Client(token)
@@ -302,7 +357,7 @@ Now you can copy ID of any discord object (right click - Copy ID)'''
                             return
                         client.send_message(attack, Parse(spam_text), False)
                         UpdateLogs(
-                            f'[INFO] [200 - OK] Флуд в {attack}' if lang ==
+                            f'[INFO] [200 - OK] Флуд в {attack}' if lang.lang ==
                             1 else f'[INFO] [200 - OK] Flooding {attack}')
                     except Exception as e:
                         try:
@@ -326,24 +381,24 @@ Now you can copy ID of any discord object (right click - Copy ID)'''
 
         def webhook_hecker_attack(self, url, spam_text, thr_id):
 
-            UpdateLogs(f'[INFO] Запуск потока {thr_id} - ВЕБХУК' if lang ==
+            UpdateLogs(f'[INFO] Запуск потока {thr_id} - ВЕБХУК' if lang.lang ==
                        1 else f'[INFO] Starting thread {thr_id} - WEBHOOK')
 
             try:
                 webhook = Webhook.from_url(url,
                                            adapter=RequestsWebhookAdapter())
             except:
-                UpdateLogs(f'[ERROR] Ошибка вехбука: {url}' if lang ==
+                UpdateLogs(f'[ERROR] Ошибка вехбука: {url}' if lang.lang ==
                            1 else f'[ERROR] Webhook error: {url}')
                 return
 
             while Attackker.is_working:
                 try:
                     webhook.send(Parse(spam_text))
-                    UpdateLogs(f'[INFO] [200 - OK] Флуд (вебхук)' if lang == 1
+                    UpdateLogs(f'[INFO] [200 - OK] Флуд (вебхук)' if lang.lang == 1
                                else f'[INFO] [200 - OK] Send flood (webhook)')
                 except:
-                    UpdateLogs(f'[ERROR] Ошибка флуда вебхуком' if lang ==
+                    UpdateLogs(f'[ERROR] Ошибка флуда вебхуком' if lang.lang ==
                                1 else '[ERROR] Error send flood by webhook')
                     time.sleep(1)
 
@@ -384,11 +439,11 @@ Now you can copy ID of any discord object (right click - Copy ID)'''
                 Attackker.is_working = False
                 self.is_attack = False
                 self.AttackButtonChangeStyleSignal.emit('Default')
-                UpdateLogs('[INFO] Остановка атаки' if lang ==
+                UpdateLogs('[INFO] Остановка атаки' if lang.lang ==
                            1 else '[INFO] Stopping attack')
                 return
 
-            UpdateLogs('[INFO] Запуск атаки' if lang ==
+            UpdateLogs('[INFO] Запуск атаки' if lang.lang ==
                        1 else '[INFO] Starting attack')
 
             clients = SmartSplit(self.TokensInput.toPlainText(), '\n')
@@ -402,16 +457,16 @@ Now you can copy ID of any discord object (right click - Copy ID)'''
                         self.AttackButtonChangeStyleSignal.emit(
                             f'CheckingClient {index},{len(clients)}')
                         UpdateLogs(
-                            f'[INFO] Сканирование токена {token}' if lang ==
+                            f'[INFO] Сканирование токена {token}' if lang.lang ==
                             1 else f'[INFO] Scanning token {token}')
                         discontrol.Client(str(token))
                     except Exception as e:
                         UpdateLogs(
-                            f'[WARNING] Неверный токен - {token}' if lang ==
+                            f'[WARNING] Неверный токен - {token}' if lang.lang ==
                             1 else f'[WARNING] Invalid token - {token}')
                         print(f'Error {e}')
                         windll.user32.MessageBoxW(
-                            0, f'Токен {token} №{index} неверен.' if lang == 1
+                            0, f'Токен {token} №{index} неверен.' if lang.lang == 1
                             else f'Token {token} №{index} invalid.', 'ОШИБКА!',
                             0)
                         self.AttackButtonChangeStyleSignal.emit('Default')
@@ -422,17 +477,17 @@ Now you can copy ID of any discord object (right click - Copy ID)'''
                         self.AttackButtonChangeStyleSignal.emit(
                             f'CheckingClient {index},{len(clients)}')
                         UpdateLogs(
-                            f'[INFO] Сканирование вебхука {token}' if lang ==
+                            f'[INFO] Сканирование вебхука {token}' if lang.lang ==
                             1 else f'[INFO] Scanning webhook {token}')
                         Webhook.from_url(token,
                                          adapter=RequestsWebhookAdapter())
                     except:
                         UpdateLogs(
-                            f'[WARNING] Неверный вебхук - {token}' if lang ==
+                            f'[WARNING] Неверный вебхук - {token}' if lang.lang ==
                             1 else f'[WARNING] Invalid webhook - {token}')
                         print(f'Error {e}')
                         windll.user32.MessageBoxW(
-                            0, f'Вебхук {token} №{index} неверен.' if lang == 1
+                            0, f'Вебхук {token} №{index} неверен.' if lang.lang == 1
                             else f'Webhook {token} №{index} invalid.',
                             'Ошибка' if lang.lang == 1 else 'Error', 0)
                         self.AttackButtonChangeStyleSignal.emit('Default')
@@ -469,9 +524,10 @@ Now you can copy ID of any discord object (right click - Copy ID)'''
                         str(token), channels, self.SpamEdit.toPlainText(),
                         index)).start()
                 else:
-                    threading.Thread(target=lambda: self.webhook_hecker_attack(
-                        str(token), self.SpamEdit.toPlainText(), index)).start(
-                        )
+                    for _ in range(3):
+                        threading.Thread(target=lambda: self.webhook_hecker_attack(
+                            str(token), self.SpamEdit.toPlainText(), index)).start(
+                            )
                 index += 1
                 time.sleep(.2)
 
@@ -499,6 +555,61 @@ Now you can copy ID of any discord object (right click - Copy ID)'''
             MainWindow.resize(310, 440)
             MainWindow.setMinimumSize(QtCore.QSize(310, 440))
             MainWindow.setMaximumSize(QtCore.QSize(310, 440))
+            MainWindow.setStyleSheet('''QScrollBar:vertical {
+    border: none;
+    background: rgb(64, 68, 75);
+    width: 5px;
+    margin: 12px 0 12px 0;
+}
+QScrollBar::handle:vertical {    
+    background-color: rgb(185, 187, 190);
+    min-height: 15px;
+    border-radius: 2px;
+}
+QScrollBar::handle:vertical:hover {    
+    background-color: rgb(135, 136, 139);
+    min-height: 15px;
+    border-radius: 2px;
+}
+QScrollBar::handle:vertical:pressed {    
+    background-color: rgb(53, 134, 117);
+    min-height: 15px;
+    border-radius: 2px;
+}
+QScrollBar::sub-line:vertical {
+    border: none;
+    background-color: rgb(185, 187, 190);
+    height: 10px;
+    border-radius: 2px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+QScrollBar::sub-line:vertical:hover {    
+    background-color: rgb(135, 136, 139);
+}
+QScrollBar::sub-line:vertical:pressed {    
+    background-color: rgb(53, 134, 117);
+}
+QScrollBar::add-line:vertical {
+    border: none;
+    background-color: rgb(185, 187, 190);
+    height: 10px;
+    border-radius: 2px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+QScrollBar::add-line:vertical:hover {    
+    background-color: rgb(135, 136, 139);
+}
+QScrollBar::add-line:vertical:pressed {    
+    background-color: rgb(53, 134, 117);
+}
+QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+    background: none;
+}
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;
+}''')
             self.move(100, 100)
             self.setWindowIcon(QtGui.QIcon(folder + sep + 'icon.png'))
             self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
@@ -603,30 +714,30 @@ Now you can copy ID of any discord object (right click - Copy ID)'''
             self.Background.setStyleSheet('background-color: rgb(54,57,63);')
             self.Background.setText('')
             self.Background.setObjectName('Background')
-            self.AboutStep1 = QtWidgets.QPushButton(self.centralwidget)
-            self.AboutStep1.setGeometry(QtCore.QRect(275, 110, 21, 21))
-            self.AboutStep1.setStyleSheet(
-                'font: 87 8pt \'Segoe UI Black\';\n'
-                'border-radius: 10;\n'
-                'background-color: rgb(185,187,190);\n'
-                'color: rbg(64,68,75);')
-            self.AboutStep1.setObjectName('AboutStep1')
-            self.AboutStep2 = QtWidgets.QPushButton(self.centralwidget)
-            self.AboutStep2.setGeometry(QtCore.QRect(275, 220, 21, 21))
-            self.AboutStep2.setStyleSheet(
-                'font: 87 8pt \'Segoe UI Black\';\n'
-                'border-radius: 10;\n'
-                'background-color: rgb(185,187,190);\n'
-                'color: rbg(64,68,75);')
-            self.AboutStep2.setObjectName('AboutStep2')
-            self.AboutStep3 = QtWidgets.QPushButton(self.centralwidget)
-            self.AboutStep3.setGeometry(QtCore.QRect(275, 330, 21, 21))
-            self.AboutStep3.setStyleSheet(
-                'font: 87 8pt \'Segoe UI Black\';\n'
-                'border-radius: 10;\n'
-                'background-color: rgb(185,187,190);\n'
-                'color: rbg(64,68,75);')
-            self.AboutStep3.setObjectName('AboutStep3')
+            # self.AboutStep1 = QtWidgets.QPushButton(self.centralwidget)
+            # self.AboutStep1.setGeometry(QtCore.QRect(266, 110, 21, 21))
+            # self.AboutStep1.setStyleSheet(
+            #     'font: 87 8pt \'Segoe UI Black\';\n'
+            #     'border-radius: 10;\n'
+            #     'background-color: rgb(185,187,190);\n'
+            #     'color: rbg(64,68,75);')
+            # self.AboutStep1.setObjectName('AboutStep1')
+            # self.AboutStep2 = QtWidgets.QPushButton(self.centralwidget)
+            # self.AboutStep2.setGeometry(QtCore.QRect(266, 220, 21, 21))
+            # self.AboutStep2.setStyleSheet(
+            #     'font: 87 8pt \'Segoe UI Black\';\n'
+            #     'border-radius: 10;\n'
+            #     'background-color: rgb(185,187,190);\n'
+            #     'color: rbg(64,68,75);')
+            # self.AboutStep2.setObjectName('AboutStep2')
+            # self.AboutStep3 = QtWidgets.QPushButton(self.centralwidget)
+            # self.AboutStep3.setGeometry(QtCore.QRect(266, 330, 21, 21))
+            # self.AboutStep3.setStyleSheet(
+            #     'font: 87 8pt \'Segoe UI Black\';\n'
+            #     'border-radius: 10;\n'
+            #     'background-color: rgb(185,187,190);\n'
+            #     'color: rbg(64,68,75);')
+            # self.AboutStep3.setObjectName('AboutStep3')
             self.ShowLogs = HoverButton(self.centralwidget)
             self.ShowLogs.setGeometry(QtCore.QRect(215, 380, 76, 36))
             self.ShowLogs.setStyleSheet('font: 87 8pt \'Segoe UI Black\';\n'
@@ -645,14 +756,14 @@ Now you can copy ID of any discord object (right click - Copy ID)'''
             self.SpamEdit.raise_()
             self.LabelStep3.raise_()
             self.AttackButton.raise_()
-            self.AboutStep1.raise_()
-            self.AboutStep2.raise_()
-            self.AboutStep3.raise_()
+            # self.AboutStep1.raise_()
+            # self.AboutStep2.raise_()
+            # self.AboutStep3.raise_()
             self.ShowLogs.raise_()
             MainWindow.setCentralWidget(self.centralwidget)
 
             MainWindow.setWindowTitle('HeckerAttack')
-            self.ApplicationMainLabel.setText('HeckerAttack by Its-MatriX')
+            self.ApplicationMainLabel.setText('HeckerAttack')
             self.TokensInput.setPlaceholderText(
                 'Введите токен(ы) аккаунта(ов) или URL вебхука(ов) по одному на строку'
                 if lang.lang == 1 else
@@ -661,26 +772,26 @@ Now you can copy ID of any discord object (right click - Copy ID)'''
             self.LabelStep1.setText('1. Аккаунты' if lang.lang ==
                                     1 else '1. Accounts')
             self.IdsInput.setPlaceholderText(
-                'Введите ID каналов по одному на строку' if lang ==
+                'Введите ID каналов по одному на строку' if lang.lang ==
                 1 else 'Input channel(s) ID(s) (one for line)')
             self.LabelStep2.setText('2. Каналы' if lang.lang ==
                                     1 else '2. Channels')
-            self.SpamEdit.setPlaceholderText('Введите текст' if lang ==
+            self.SpamEdit.setPlaceholderText('Введите текст' if lang.lang ==
                                              1 else 'Enter spam text')
             self.LabelStep3.setText('3. Текст' if lang.lang ==
                                     1 else '3. Text')
             self.AttackButton.setText('АТАКОВАТЬ' if lang.lang ==
                                       1 else 'ATTACK')
-            self.AboutStep1.setText('?')
-            self.AboutStep2.setText('?')
-            self.AboutStep3.setText('?')
+            # self.AboutStep1.setText('?')
+            # self.AboutStep2.setText('?')
+            # self.AboutStep3.setText('?')
             self.ShowLogs.setText('ЛОГИ' if lang.lang == 1 else 'LOGS')
 
             QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-            self.AboutStep1.clicked.connect(Invokers.InvokeWindowStep1)
-            self.AboutStep2.clicked.connect(Invokers.InvokeWindowStep2)
-            self.AboutStep3.clicked.connect(Invokers.InvokeWindowStep3)
+            # self.AboutStep1.clicked.connect(Invokers.InvokeWindowStep1)
+            # self.AboutStep2.clicked.connect(Invokers.InvokeWindowStep2)
+            # self.AboutStep3.clicked.connect(Invokers.InvokeWindowStep3)
             self.AttackButton.clicked.connect(self.start_attack)
             self.ShowLogs.clicked.connect(self.OpenLogsWindow)
             self.AttackButton.hover.connect(self.AttackButtonHover)
@@ -699,7 +810,7 @@ Now you can copy ID of any discord object (right click - Copy ID)'''
                     'border-radius: 5;\n'
                     'background-color: rgb(237,66,69);\n'
                     'color: rgb(255, 255, 255);')
-                self.AttackButton.setText('АТАКА' if lang ==
+                self.AttackButton.setText('АТАКА' if lang.lang ==
                                           1 else 'ATTACKING')
             elif signal == 'Default':
                 Attackker.is_checking = False
@@ -710,7 +821,7 @@ Now you can copy ID of any discord object (right click - Copy ID)'''
                     'border-radius: 5;\n'
                     'background-color: rgb(88,101,242);\n'
                     'color: white;')
-                self.AttackButton.setText('АТАКОВАТЬ' if lang ==
+                self.AttackButton.setText('АТАКОВАТЬ' if lang.lang ==
                                           1 else 'ATTACK')
             elif signal == 'Starting':
                 Attackker.is_checking = False
@@ -721,7 +832,7 @@ Now you can copy ID of any discord object (right click - Copy ID)'''
                     'border-radius: 5;\n'
                     'background-color: rgb(88,101,242);\n'
                     'color: white;')
-                self.AttackButton.setText('ЗАПУСК' if lang ==
+                self.AttackButton.setText('ЗАПУСК' if lang.lang ==
                                           1 else 'STARTING')
             else:
                 Attackker.is_checking = True
@@ -738,7 +849,7 @@ Now you can copy ID of any discord object (right click - Copy ID)'''
                     now = int(signal[0])
                     total = int(signal[1])
                     self.AttackButton.setText(
-                        f'ПРОВЕРКА {now}/{total}' if lang ==
+                        f'ПРОВЕРКА {now}/{total}' if lang.lang ==
                         1 else f'CHECKING {now}/{total}')
 
         def OpenLogsWindow(self):
